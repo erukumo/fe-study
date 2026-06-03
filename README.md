@@ -1,16 +1,104 @@
-# React + Vite
+# FE対策アプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+基本情報技術者試験の対策用Webアプリです。フラッシュカード・演習クイズ・成績管理の3機能を搭載しています。
 
-Currently, two official plugins are available:
+## 機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **用語カード** — 用語をタップして意味を確認。カテゴリ絞り込み・スワイプ対応
+- **演習クイズ** — 4択問題で理解度チェック。正答率を記録
+- **成績** — カテゴリ別の正答率を確認。リセット機能あり
 
-## React Compiler
+## 技術スタック
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + Vite
+- GitHub → Vercel 自動デプロイ
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ローカル開発
+
+```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバー起動 (http://localhost:5173)
+npm run dev
+
+# ビルド確認
+npm run build
+```
+
+---
+
+## 用語を追加・編集する
+
+用語データは `src/data/terms.json` に格納されています。以下のフォーマットで追記してください。
+
+```json
+{
+  "id": 185,
+  "term": "用語名",
+  "plain": "一行で説明",
+  "detail": "詳しい説明文。",
+  "category": "カテゴリ名",
+  "freq": "超頻出",
+  "mnemonic": "覚え方・語呂合わせ。"
+}
+```
+
+**カテゴリ一覧**
+- コンピュータ基礎
+- システム設計
+- セキュリティ
+- ネットワーク
+- データベース
+- アルゴリズム・データ構造
+- ソフトウェア開発
+- プロジェクトマネジメント
+- ストラテジ
+
+**freq（出題頻度）**
+- `超頻出` — 絶対に落とせない
+- `頻出` — ほぼ毎回出題
+- `標準` — 余裕があれば
+
+---
+
+## デプロイ手順
+
+このプロジェクトはGitHubとVercelが連携しており、**`main` ブランチにプッシュすると自動でデプロイ**されます。
+
+### VS Codeからプッシュする手順
+
+1. `src/data/terms.json` などを編集して保存
+2. 左サイドバーの**ソース管理アイコン**（ブランチマーク）をクリック
+3. 変更ファイルの **`+`** をクリックしてステージング
+4. 上部の入力欄にコミットメッセージを入力（例：`用語を10件追加`）
+5. **「コミット」** ボタンをクリック
+6. **「同期の変更」** または **「プッシュ」** をクリック
+
+プッシュ後、[Vercelダッシュボード](https://vercel.com/dd82gdjz8s-8470s-projects/fe-study) のDeploymentsタブでデプロイ状況を確認できます。
+
+### 本番URL
+
+https://fe-study-omega.vercel.app
+
+---
+
+## リポジトリ構成
+
+```
+fe-study/
+├── src/
+│   ├── components/
+│   │   ├── FlashCard.jsx   # 用語カード画面
+│   │   ├── Quiz.jsx        # 演習クイズ画面
+│   │   └── StatsView.jsx   # 成績画面
+│   ├── data/
+│   │   ├── terms.json      # 用語データ（184件）
+│   │   └── questions.json  # クイズ問題データ
+│   ├── hooks/
+│   │   └── useProgress.js  # 進捗管理フック
+│   └── App.jsx
+└── package.json
+```
