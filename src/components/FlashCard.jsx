@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import terms from '../data/terms.json';
 
 const CATEGORIES = ['すべて', ...new Set(terms.map((t) => t.category))];
@@ -9,29 +9,52 @@ const FREQ_CONFIG = {
   '標準':   { label: '標準',   className: 'freq-standard' },
 };
 
+const STORAGE_KEY = 'fe-flashcard-pos';
+
+function loadPos() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {}; } catch { return {}; }
+}
+
 export default function FlashCard() {
-  const [selectedCategory, setSelectedCategory] = useState('すべて');
-  const [index, setIndex] = useState(0);
+  const saved = loadPos();
+  const [selectedCategory, setSelectedCategory] = useState(saved.category ?? 'すべて');
+  const [index, setIndex] = useState(saved.index ?? 0);
   const [flipped, setFlipped] = useState(false);
   const [input, setInput] = useState('');
+  const [jumpInput, setJumpInput] = useState(String((saved.index ?? 0) + 1));
   const touchStartX = useRef(null);
+
+  useEffect(() => {
+    setJumpInput(String(index + 1));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ category: selectedCategory, index }));
+  }, [index, selectedCategory]);
 
   const filtered = selectedCategory === 'すべて'
     ? terms
     : terms.filter((t) => t.category === selectedCategory);
 
-  const card = filtered[index];
+  const safeIndex = Math.min(index, filtered.length - 1);
+  const card = filtered[safeIndex];
 
   function next() {
     setFlipped(false);
     setInput('');
-    setTimeout(() => setIndex((i) => (i + 1) % filtered.length), 150);
+    setTimeout(() => setIndex((i) => (Math.min(i, filtered.length - 1) + 1) % filtered.length), 150);
   }
 
   function prev() {
     setFlipped(false);
     setInput('');
-    setTimeout(() => setIndex((i) => (i - 1 + filtered.length) % filtered.length), 150);
+    setTimeout(() => setIndex((i) => (Math.min(i, filtered.length - 1) - 1 + filtered.length) % filtered.length), 150);
+  }
+
+  function jumpTo(val) {
+    const n = parseInt(val, 10);
+    if (isNaN(n)) { setJumpInput(String(index + 1)); return; }
+    const clamped = Math.max(1, Math.min(n, filtered.length)) - 1;
+    setFlipped(false);
+    setInput('');
+    setIndex(clamped);
   }
 
   function handleCategoryChange(cat) {
@@ -72,7 +95,19 @@ export default function FlashCard() {
         ))}
       </div>
 
-      <p className="card-count">{index + 1} / {filtered.length}</p>
+      <div className="card-count-row">
+        <input
+          className="card-count-jump"
+          type="number"
+          min={1}
+          max={filtered.length}
+          value={jumpInput}
+          onChange={(e) => setJumpInput(e.target.value)}
+          onBlur={(e) => jumpTo(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && jumpTo(e.target.value)}
+        />
+        <span className="card-count-sep">/ {filtered.length}</span>
+      </div>
 
       <div
         className={`flash-card ${flipped ? 'flipped' : ''}`}
@@ -88,6 +123,7 @@ export default function FlashCard() {
                 <span className={`freq-badge ${freq.className}`}>{freq.label}</span>
               )}
             </div>
+            <span className="card-category-badge">{card.category}</span>
             <p className="card-term">{card.term}</p>
             <p className="card-hint">タップして確認</p>
           </div>

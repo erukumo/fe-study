@@ -154,11 +154,43 @@ body {
   padding: 0 0 24px;
 }
 
-.card-count {
+.card-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0 8px;
+}
+
+.card-count-jump {
+  width: 52px;
+  padding: 3px 6px;
+  border: 1.5px solid #e5e5ea;
+  border-radius: 8px;
+  font-size: 13px;
   text-align: center;
+  color: #1c1c1e;
+  background: #fff;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.card-count-jump::-webkit-outer-spin-button,
+.card-count-jump::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.card-count-jump:focus { border-color: #007aff; }
+
+.card-count-sep {
   font-size: 13px;
   color: #8e8e93;
-  margin: 12px 0 8px;
+}
+
+.card-category-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #007aff;
+  background: #e8f0fe;
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .flash-card {
@@ -837,6 +869,18 @@ body.dark .category-chip.active {
   background: #0a84ff;
   border-color: #0a84ff;
   color: #fff;
+}
+
+body.dark .card-count-jump {
+  background: #2c2c2e;
+  border-color: #3a3a3c;
+  color: #f5f5f7;
+}
+body.dark .card-count-jump:focus { border-color: #0a84ff; }
+
+body.dark .card-category-badge {
+  background: #0a2a4a;
+  color: #0a84ff;
 }
 
 body.dark .flash-front {
