@@ -22,6 +22,8 @@ export default function FlashCard() {
   const [flipped, setFlipped] = useState(false);
   const [input, setInput] = useState('');
   const [jumpInput, setJumpInput] = useState(String((saved.index ?? 0) + 1));
+  const [animClass, setAnimClass] = useState('');
+  const animating = useRef(false);
   const touchStartX = useRef(null);
 
   useEffect(() => {
@@ -36,17 +38,29 @@ export default function FlashCard() {
   const safeIndex = Math.min(index, filtered.length - 1);
   const card = filtered[safeIndex];
 
-  function next() {
+  function navigate(dir) {
+    if (animating.current) return;
+    animating.current = true;
     setFlipped(false);
     setInput('');
-    setTimeout(() => setIndex((i) => (Math.min(i, filtered.length - 1) + 1) % filtered.length), 150);
+    setAnimClass(dir === 'next' ? 'slide-out-left' : 'slide-out-right');
+    setTimeout(() => {
+      setIndex((i) => {
+        const safe = Math.min(i, filtered.length - 1);
+        return dir === 'next'
+          ? (safe + 1) % filtered.length
+          : (safe - 1 + filtered.length) % filtered.length;
+      });
+      setAnimClass(dir === 'next' ? 'slide-in-right' : 'slide-in-left');
+      setTimeout(() => {
+        setAnimClass('');
+        animating.current = false;
+      }, 220);
+    }, 180);
   }
 
-  function prev() {
-    setFlipped(false);
-    setInput('');
-    setTimeout(() => setIndex((i) => (Math.min(i, filtered.length - 1) - 1 + filtered.length) % filtered.length), 150);
-  }
+  function next() { navigate('next'); }
+  function prev() { navigate('prev'); }
 
   function jumpTo(val) {
     const n = parseInt(val, 10);
@@ -110,8 +124,8 @@ export default function FlashCard() {
       </div>
 
       <div
-        className={`flash-card ${flipped ? 'flipped' : ''}`}
-        onClick={() => setFlipped((f) => !f)}
+        className={`flash-card ${flipped ? 'flipped' : ''} ${animClass}`}
+        onClick={() => !animating.current && setFlipped((f) => !f)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
